@@ -1,7 +1,7 @@
 'use client';
 
-import TextInput from '@/components/TextInput';
 import React from 'react';
+import styles from './CityInput.module.css';
 
 function CityInput({ onSubmit, clearError }) {
     const [city, setCity] = React.useState('');
@@ -18,12 +18,14 @@ function CityInput({ onSubmit, clearError }) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <TextInput
-                placeholder='Harare, Zimbabwe'
+            <input
+                className={styles.searchInput}
+                type='text'
+                placeholder='Harare'
                 value={city}
                 onChange={handleInputChange}
             />
-            <button>Check Weather</button>
+            <button className={styles.button}>Check Weather</button>
         </form>
     );
 }

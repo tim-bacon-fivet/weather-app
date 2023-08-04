@@ -24,6 +24,9 @@ export default function Home() {
         if (!json.results) {
             console.error('no city found');
             setError(true);
+            setLocation('');
+            setCurrentWeather({});
+            setForecastWeather({});
             return;
         }
 
