@@ -1,0 +1,8 @@
+.section {
+    margin-block: 32px;
+    margin-inline: 16px;
+}
+
+.section h2 {
+    margin-left: -16px;
+}

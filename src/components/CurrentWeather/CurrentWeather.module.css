@@ -1,0 +1,14 @@
+.currentTemp {
+    font-size: 6rem;
+    font-weight: 700;
+}
+
+.row {
+    display: flex;
+    gap: 8px;
+}
+
+.error {
+    color: red;
+    margin-inline: -16px;
+}

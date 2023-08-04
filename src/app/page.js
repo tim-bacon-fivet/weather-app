@@ -1,95 +1,61 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client';
+
+import CityInput from '@/components/CityInput';
+import CurrentWeather from '@/components/CurrentWeather';
+import ForecastWeather from '@/components/ForecastWeather';
+import MaxWidthContainer from '@/components/MaxWidthContainer';
+import React from 'react';
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+    const [location, setLocation] = React.useState('');
+    const [currentWeather, setCurrentWeather] = React.useState({});
+    const [forecastWeather, setForecastWeather] = React.useState({});
+    const [error, setError] = React.useState(false);
+
+    const handleCitySearch = async city => {
+        if (!city) return;
+
+        const cityResp = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=en&format=json`
+        );
+        const json = await cityResp.json();
+        console.log('🚀 -> handleCitySearch -> json:', json);
+
+        if (!json.results) {
+            console.error('no city found');
+            setError(true);
+            return;
+        }
+
+        const { name, country, longitude, latitude, timezone } =
+            json.results[0];
+
+        setLocation(`${name}, ${country}`);
+
+        const weatherResp = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weathercode,temperature_2m_max,temperature_2m_min&current_weather=true&timezone=${timezone}`
+        );
+
+        const weatherJson = await weatherResp.json();
+        console.log('🚀 -> handleCitySearch -> weatherJson:', weatherJson);
+
+        setCurrentWeather(weatherJson.current_weather);
+        setForecastWeather(weatherJson.daily);
+    };
+
+    return (
+        <MaxWidthContainer>
+            <h1>Weather App</h1>
+            <CityInput
+                onSubmit={handleCitySearch}
+                clearError={() => setError(false)}
             />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+            <CurrentWeather
+                error={error}
+                location={location}
+                currentWeather={currentWeather}
+            />
+            <ForecastWeather forecastWeather={forecastWeather} />
+        </MaxWidthContainer>
+    );
 }
